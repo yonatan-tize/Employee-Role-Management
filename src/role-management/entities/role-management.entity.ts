@@ -11,6 +11,6 @@ export class RoleManagement {
     @Column({type: "text"})
     description: string;
 
-    @Column({type: "number", nullable: true})
-    parentId: number;
+    @Column({type: "int", nullable: true})
+    parentId: number | null;
 }

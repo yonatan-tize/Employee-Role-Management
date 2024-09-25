@@ -12,6 +12,7 @@ export class RoleManagementService {
     @InjectRepository(RoleManagement)
     private readonly roleManagementRepository: Repository<RoleManagement>){}
 
+    // create a new role
     async create(createRoleManagementDto: CreateRoleManagementDto) {
   
       // Check if parent role exists (except for CEO which has no parent)
@@ -43,49 +44,80 @@ export class RoleManagementService {
     }
     
 
-  async findAll() {
-    return await this.roleManagementRepository.find()
-  }
-
-
-  // find role by id
-  async findOne(id: number) {
-    const role = await this.roleManagementRepository.findOne({
-      where: { id}
-    });
-
-    if (!role) throw new NotFoundException({message: "role not found"});
-
-    return role;
-  }
-
-  
-  //Updates a role for the given id.
-  async update(id: number, updateRoleManagementDto: UpdateRoleManagementDto) {
-    const role = await this.roleManagementRepository.findOne({
-      where: { id}
-    });
-    if (!role) throw new NotFoundException({message: "Role Not Found"});
-
-    // check if the parent role does not exist
-    if (updateRoleManagementDto.parentId){
-      const parentRole = await this.roleManagementRepository.find({
-        where: { parentId : updateRoleManagementDto.parentId }
-      })
-      if (!parentRole) throw new NotFoundException({message: "Parent Not Found"})
+    //find all roles
+    async findAll() {
+      return await this.roleManagementRepository.find()
     }
 
-    return await this.roleManagementRepository.update(id, updateRoleManagementDto);
-  }
+
+    // find role by id
+    async findOne(id: number) {
+
+      //check if role already exists
+      const role = await this.roleManagementRepository.findOne({
+        where: { id }
+      });
+
+      if (!role) throw new NotFoundException({message: "role not found"});
+
+      return role;
+    }
 
 
-  // find the role by id and if exist delete the role
-  async remove(id: number) {
-    const role = await this.roleManagementRepository.findOne({
-      where: { id}
-    });
-    if (!role) throw new NotFoundException({message: "Role Not Found"});
+    // Get all childrens of a specific position/role
+    async findChildren(id: number){
 
-    return await this.roleManagementRepository.delete(id);
-  }
+      //check if role already exists
+      const role = await this.roleManagementRepository.findOne({ where: { id } });
+      if(!role) throw new NotFoundException({message: "Role Not Found"});
+
+      // check if role has children
+      const children = await this.roleManagementRepository.find({
+        where: { parentId: id }
+      }); 
+      if (!children) throw new NotFoundException({message: `No Child For ${role.name} `}) 
+
+      return children
+    }
+      
+    
+    // Updates a role for the given id.
+    async update(id: number, updateRoleManagementDto: UpdateRoleManagementDto) {
+
+      //check if role already exists
+      const role = await this.roleManagementRepository.findOne({
+        where: { id }
+      });
+      if (!role) throw new NotFoundException({message: "Role Not Found"});
+
+      // check if the parent role already exists
+      if (updateRoleManagementDto.parentId){
+        const parentRole = await this.roleManagementRepository.find({
+          where: { parentId : updateRoleManagementDto.parentId }
+        })
+        if (!parentRole) throw new NotFoundException({message: "Parent Not Found"})
+      }
+
+      return await this.roleManagementRepository.update(id, updateRoleManagementDto);
+    }
+
+
+    // find the role by id and if exist delete the role
+    async remove(id: number) {
+
+      //check if role already exists
+      const role = await this.roleManagementRepository.findOne({
+        where: { id }
+      });
+      if (!role) throw new NotFoundException({message: "Role Not Found"});
+
+      // If the role has children, update their parentId to the parentId of the role being deleted
+      await this.roleManagementRepository.update(
+        {parentId: id}, // find children whose parentId is the current role 
+        {parentId: role.parentId} //update the parentId for the children to their parrent
+      )
+
+      //delete the row
+      return await this.roleManagementRepository.delete(id);
+    }
 }

@@ -2,11 +2,12 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { RoleManagementService } from './role-management.service';
 import { CreateRoleManagementDto } from './dto/create-role-management.dto';
 import { UpdateRoleManagementDto } from './dto/update-role-management.dto';
+import { todo } from 'node:test';
 
-@Controller('role-management')
+@Controller('role')
 export class RoleManagementController {
   constructor(private readonly roleManagementService: RoleManagementService) {}
-
+ //TODO add the class validator here
   @Post()
   create(@Body() createRoleManagementDto: CreateRoleManagementDto) {
     return this.roleManagementService.create(createRoleManagementDto);
@@ -22,7 +23,13 @@ export class RoleManagementController {
     return this.roleManagementService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Get(':id/children')
+  findChildren(@Param('id') id: string){
+    return this.roleManagementService.findChildren(+id)
+  }
+
+ //TODO add the class validator here
+  @Patch(':id') 
   update(@Param('id') id: string, @Body() updateRoleManagementDto: UpdateRoleManagementDto) {
     return this.roleManagementService.update(+id, updateRoleManagementDto);
   }

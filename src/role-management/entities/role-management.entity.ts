@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name: "roleManagement"})
 export class RoleManagement {
@@ -11,6 +11,6 @@ export class RoleManagement {
     @Column({type: "text"})
     description: string;
 
-    @Column({type: "int", nullable: true})
+    @Column({type: 'int', nullable: true})
     parentId: number | null;
 }

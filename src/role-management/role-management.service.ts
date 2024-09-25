@@ -90,6 +90,11 @@ export class RoleManagementService {
       });
       if (!role) throw new NotFoundException({message: "Role Not Found"});
 
+      //check if the role is ceo and is trying to get parent
+      if (role.name === "CEO" && updateRoleManagementDto.parentId !== null ){
+        throw new BadRequestException({message: "CEO Cannot Have A Parent"})
+      }
+
       // check if the parent role already exists
       if (updateRoleManagementDto.parentId){
         const parentRole = await this.roleManagementRepository.find({
@@ -113,8 +118,8 @@ export class RoleManagementService {
 
       // If the role has children, update their parentId to the parentId of the role being deleted
       await this.roleManagementRepository.update(
-        {parentId: id}, // find children whose parentId is the current role 
-        {parentId: role.parentId} //update the parentId for the children to their parrent
+        {parentId: id},  
+        {parentId: role.parentId}
       )
 
       //delete the row

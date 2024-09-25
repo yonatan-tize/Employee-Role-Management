@@ -12,36 +12,36 @@ export class RoleManagementService {
     @InjectRepository(RoleManagement)
     private readonly roleManagementRepository: Repository<RoleManagement>){}
 
-  async create(createRoleManagementDto: CreateRoleManagementDto) {
-
-    //check if parent exist
-    const role = await this.roleManagementRepository.find({
-      where: {
-        parentId : createRoleManagementDto.parentId
+    async create(createRoleManagementDto: CreateRoleManagementDto) {
+  
+      // Check if parent role exists (except for CEO which has no parent)
+      if (createRoleManagementDto.parentId !== null) {
+        const parentRole = await this.roleManagementRepository.findOne({
+          where: { id: createRoleManagementDto.parentId }
+        });
+        if (!parentRole) {
+          throw new NotFoundException({ message: "Parent Role Not Found" });
+        }
       }
-    })
-    if (!role){
-      throw new NotFoundException({message: "Parent Role Not Found"})
-    }
-
-    // check if the role aleady exist
-    const requestRole = await this.roleManagementRepository.find({
-      where: {
-        name: createRoleManagementDto.name
+    
+      // Check if the role already exists
+      const existingRole = await this.roleManagementRepository.findOne({
+        where: { name: createRoleManagementDto.name }
+      });
+      if (existingRole) {
+        throw new ConflictException({ message: "Role Already Exists" });
       }
-    })
-    if (requestRole) throw new ConflictException({message: "Role Alreay Exists"})
-
-    // check if the parent of CEO is null
-    if (createRoleManagementDto.name === "CEO" && createRoleManagementDto.parentId != null){
-      throw new BadRequestException({message: "CEO Can Not Have A Parent"})
+    
+      // Check if the CEO role is trying to have a parent
+      if (createRoleManagementDto.name === "CEO" && createRoleManagementDto.parentId !== null) {
+        throw new BadRequestException({ message: "CEO Cannot Have A Parent" });
+      }
+    
+      // Create and save the new role
+      const newRole = this.roleManagementRepository.create(createRoleManagementDto);
+      return await this.roleManagementRepository.save(newRole);
     }
-
-    const newRole = this.roleManagementRepository.create(createRoleManagementDto) 
-
-
-    return await this.roleManagementRepository.save(newRole)
-  }
+    
 
   async findAll() {
     return await this.roleManagementRepository.find()

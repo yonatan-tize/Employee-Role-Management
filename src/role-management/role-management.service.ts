@@ -95,6 +95,11 @@ export class RoleManagementService {
         throw new BadRequestException({message: "CEO Cannot Have A Parent"})
       }
 
+      // check self reference
+      if (updateRoleManagementDto.parentId === role.id){
+        throw new BadRequestException({message: 'Can not Reference Self As Parent'})
+      }
+
       // check if the parent role already exists
       if (updateRoleManagementDto.parentId){
         const parentRole = await this.roleManagementRepository.find({

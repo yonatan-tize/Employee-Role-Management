@@ -7,7 +7,7 @@ import { todo } from 'node:test';
 @Controller('role')
 export class RoleManagementController {
   constructor(private readonly roleManagementService: RoleManagementService) {}
- //TODO add the class validator here
+
   @Post()
   create(@Body(ValidationPipe) createRoleManagementDto: CreateRoleManagementDto) {
     return this.roleManagementService.create(createRoleManagementDto);
@@ -28,7 +28,7 @@ export class RoleManagementController {
     return this.roleManagementService.findChildren(+id)
   }
 
- //TODO add the class validator here
+
   @Patch(':id') 
   update(@Param('id') id: string, @Body(ValidationPipe) updateRoleManagementDto: UpdateRoleManagementDto) {
     return this.roleManagementService.update(+id, updateRoleManagementDto);

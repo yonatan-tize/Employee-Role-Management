@@ -1,4 +1,4 @@
-import { IsInt, isNumber, IsNumberString, IsString } from "class-validator"
+import { IsInt, isNumber, IsNumberString, IsOptional, IsString } from "class-validator"
 
 export class CreateRoleManagementDto {
     @IsString()
@@ -7,6 +7,7 @@ export class CreateRoleManagementDto {
     @IsString()
     description: string
 
+    @IsOptional()
     @IsInt()
-    parentId: number
+    parentId: number | null
 }

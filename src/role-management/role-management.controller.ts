@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe } from '@nestjs/common';
 import { RoleManagementService } from './role-management.service';
 import { CreateRoleManagementDto } from './dto/create-role-management.dto';
 import { UpdateRoleManagementDto } from './dto/update-role-management.dto';
@@ -9,7 +9,7 @@ export class RoleManagementController {
   constructor(private readonly roleManagementService: RoleManagementService) {}
  //TODO add the class validator here
   @Post()
-  create(@Body() createRoleManagementDto: CreateRoleManagementDto) {
+  create(@Body(ValidationPipe) createRoleManagementDto: CreateRoleManagementDto) {
     return this.roleManagementService.create(createRoleManagementDto);
   }
 
@@ -30,7 +30,7 @@ export class RoleManagementController {
 
  //TODO add the class validator here
   @Patch(':id') 
-  update(@Param('id') id: string, @Body() updateRoleManagementDto: UpdateRoleManagementDto) {
+  update(@Param('id') id: string, @Body(ValidationPipe) updateRoleManagementDto: UpdateRoleManagementDto) {
     return this.roleManagementService.update(+id, updateRoleManagementDto);
   }
 

@@ -22,6 +22,11 @@ describe('RoleManagementController', () => {
       delete: jest.fn(),
     };
 
+    /**
+     * Sets up the testing module for the RoleManagementController.
+     * - A mock repository for `RoleManagement` using `getRepositoryToken`.
+     * @returns {Promise<TestingModule>} The compiled testing module.
+     */
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RoleManagementController],
       providers: [
@@ -51,6 +56,9 @@ describe('RoleManagementController', () => {
     expect(controller).toBeDefined();
   });
 
+
+  // This test verifies that the controller's 'create' method correctly passes the DTO
+  // to the service and returns the expected result from the service's 'create' method.
   describe('create', () => {
     it('should call service.create with the correct DTO', async () => {
       const dto: CreateRoleManagementDto = {
@@ -70,6 +78,9 @@ describe('RoleManagementController', () => {
     });
   });
 
+
+  // This test verifies that the controller's 'findAll' method calls the service's 
+  // 'findAll' method and returns the expected list of roles.
   describe('findAll', () => {
     it('should call service.findAll and return all roles', async () => {
       const roles = [
@@ -84,6 +95,9 @@ describe('RoleManagementController', () => {
     });
   });
 
+
+  // This test verifies that the controller's 'findOne' method calls the service's 
+  // 'findOne' method with the correct id and returns the expected role.
   describe('findOne', () => {
     it('should call service.findOne with the correct id', async () => {
       const id = '1';
@@ -96,6 +110,9 @@ describe('RoleManagementController', () => {
     });
   });
 
+
+  // This test verifies that the controller's 'findChildren' method calls the service's 
+  // 'findChildren' method with the correct id and returns the expected list of child roles.
   describe('findChildren', () => {
     it('should call service.findChildren with the correct id', async () => {
       const id = '1';
@@ -111,6 +128,9 @@ describe('RoleManagementController', () => {
     });
   });
 
+
+  // This test verifies that the controller's 'update' method calls the service's 
+  // 'update' method with the correct id and DTO, and returns the expected result after updating the role.
   describe('update', () => {
     it('should call service.update with the correct id and DTO', async () => {
       const id = '1';
@@ -124,6 +144,9 @@ describe('RoleManagementController', () => {
     });
   });
 
+
+  // This test verifies that the controller's 'remove' method calls the service's 
+  // 'remove' method with the correct id, and returns the expected result after removing the role.
   describe('remove', () => {
     it('should call service.remove with the correct id', async () => {
       const id = '1';

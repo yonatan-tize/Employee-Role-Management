@@ -1,16 +1,16 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity({name: "roleManagement"})
+@Entity({name: "role_managements"})
 export class RoleManagement {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     id: number;
 
-    @Column({type: "text"})
+    @Column({type: "text", unique: true})
     name: string;
 
     @Column({type: "text"})
     description: string;
 
-    @Column({type: 'int', nullable: true})
+    @Column({type: 'uuid', nullable: true})
     parentId: number | null;
 }

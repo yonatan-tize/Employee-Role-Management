@@ -4,7 +4,6 @@ import { UpdateRoleManagementDto } from './dto/update-role-management.dto';
 import { Repository } from 'typeorm';
 import { RoleManagement } from './entities/role-management.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { error } from 'node:console';
 
 @Injectable()
 export class RoleManagementService {
@@ -31,23 +30,17 @@ export class RoleManagementService {
         throw new BadRequestException({ message: "CEO Cannot Have A Parent" });
       }
 
-      try {
-        // Create and insert the new role
-        const newRole = this.roleManagementRepository.create(createRoleManagementDto);
-        return await this.roleManagementRepository.insert(newRole); 
+      const newRole = this.roleManagementRepository.create(createRoleManagementDto);
+      return await this.roleManagementRepository.insert(newRole); 
+    }
 
-      } catch(err){
-          throw new InternalServerErrorException( // handle exception globally
-            {
-              message: "Failed to Create Role",
-              error: err.message
-            }
-          )
-      }
+    async findAll(){
+      const roles = await this.roleManagementRepository.find()
+      return roles
     }
     
     // Return the current role with its nested children as an object.
-    async findAll(id: string){
+    async findRoleTree(id: string){
 
       // Recursively find the child roles and structure them as a tree.
       const findRoleTree = async (id: string) => {
@@ -57,16 +50,17 @@ export class RoleManagementService {
         const children = {} 
         for (const child of childRoles) {
           const grandChildRoles = await findRoleTree(child.id);  // Recursively find children
-          
           children[child.name] = grandChildRoles;  // Use child.name as the key 
         }
-        return children
-      }
 
-      const currRole = await this.roleManagementRepository.findOne({ where: { id } });
+        return children
+      };
+
+      const role = await this.roleManagementRepository.findOne({ where: { id } });
+      if (!role) throw new NotFoundException({message: "Role Not Found"});
       const descendant = await findRoleTree(id)
 
-      return{ [currRole.name]: descendant}
+      return{ [role.name]: descendant}
     }
 
 
@@ -74,22 +68,17 @@ export class RoleManagementService {
     async findOne(id: string) {
         const role = await this.roleManagementRepository.findOne({ where: { id } });
         if (!role) throw new NotFoundException({message: "Role Not Found"});
-
         return role;
     }
 
 
     // Get all childrens of a specific position/role
     async findChildren(id: string){
-        //check if role already exists
         const role = await this.roleManagementRepository.findOne({ where: { id } });
         if(!role) throw new NotFoundException({message: "Role Not Found"});
 
         // get children of given role
-        const children = await this.roleManagementRepository.find({
-          where: { parentId: id }
-        }); 
-
+        const children = await this.roleManagementRepository.find({ where: { parentId: id } }); 
         return children
     }
       
@@ -115,25 +104,19 @@ export class RoleManagementService {
           if (!parentRole) throw new NotFoundException({message: "Parent Not Found"})
         }
 
-        return await this.roleManagementRepository.update(id, updateRoleManagementDto);
-
+        await this.roleManagementRepository.update(id, updateRoleManagementDto);
+        return await this.roleManagementRepository.findOne({ where: { id } });
     }
 
 
     // find the role by id and if exist delete the role
     async remove(id: string) {
         //check if role already exists
-        const role = await this.roleManagementRepository.findOne({
-          where: { id }
-        });
+        const role = await this.roleManagementRepository.findOne({ where: { id } });
         if (!role) throw new NotFoundException({message: "Role Not Found"});
 
         // If the role has children, update their parentId to the parentId of the role being deleted
-        await this.roleManagementRepository.update( { parentId: id },  { parentId: role.parentId }
-        )
-        //delete the row
+        await this.roleManagementRepository.update( { parentId: id },  { parentId: role.parentId } )
         return await this.roleManagementRepository.delete(id);
-
-      
     }
 }

@@ -46,7 +46,7 @@ export class RoleManagementService {
           const grandChildRoles = await findRoleTree(child.id);  // Recursively find children
           children[child.name] = grandChildRoles;  // Use child.name as the key 
         }
-
+        
         return children
       };
 

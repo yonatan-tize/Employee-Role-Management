@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name: "role_managements"})
 export class RoleManagement {
@@ -13,4 +13,11 @@ export class RoleManagement {
 
     @Column({type: 'uuid', nullable: true})
     parentId: string | null;
+
+    @ManyToOne(()=>RoleManagement, (role) => role.children,{nullable:true})
+    @JoinColumn({name: "parentId"})
+    parent: RoleManagement;
+
+    @OneToMany(() => RoleManagement, role => role.parent)
+    children: RoleManagement[];
 }

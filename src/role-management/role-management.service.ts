@@ -20,14 +20,8 @@ export class RoleManagementService {
         const parentRole = await this.roleManagementRepository.findOne({
           where: { id: createRoleManagementDto.parentId }
         });
-        if (!parentRole) {
-          throw new NotFoundException({ message: "Parent Role Not Found" });
-        }
-      }
-    
-      // Check if the CEO role is trying to have a parent
-      if (createRoleManagementDto.name === "CEO" && createRoleManagementDto.parentId !== null) {
-        throw new BadRequestException({ message: "CEO Cannot Have A Parent" });
+        if (!parentRole) throw new NotFoundException({ message: "Parent Role Not Found" });
+        
       }
 
       const newRole = this.roleManagementRepository.create(createRoleManagementDto);

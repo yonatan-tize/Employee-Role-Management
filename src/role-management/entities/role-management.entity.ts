@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 @Entity({name: "role_managements"})
 export class RoleManagement {
     @PrimaryGeneratedColumn('uuid')
-    id: number;
+    id: string;
 
     @Column({type: "text", unique: true})
     name: string;
@@ -12,5 +12,5 @@ export class RoleManagement {
     description: string;
 
     @Column({type: 'uuid', nullable: true})
-    parentId: number | null;
+    parentId: string | null;
 }

@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe } fro
 import { RoleManagementService } from './role-management.service';
 import { CreateRoleManagementDto } from './dto/create-role-management.dto';
 import { UpdateRoleManagementDto } from './dto/update-role-management.dto';
-import { todo } from 'node:test';
 
 @Controller('role')
 export class RoleManagementController {
@@ -15,33 +14,33 @@ export class RoleManagementController {
   }
 
   // get all roles
-  @Get()
-  findAll(id: number) {
-    return this.roleManagementService.findRoleInTree(id);
+  @Get(':id/children/tree')
+  findRoleTree(@Param('id') id: string) {
+    return this.roleManagementService.findAll(id);
   }
 
 
   // get a single role by id
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.roleManagementService.findOne(+id);
+    return this.roleManagementService.findOne(id);
   }
 
   // get children of a role given the id
   @Get(':id/children')
   findChildren(@Param('id') id: string){
-    return this.roleManagementService.findChildren(+id)
+    return this.roleManagementService.findChildren(id)
   }
 
   //update a role for the provided id
   @Patch(':id') 
   update(@Param('id') id: string, @Body(ValidationPipe) updateRoleManagementDto: UpdateRoleManagementDto) {
-    return this.roleManagementService.update(+id, updateRoleManagementDto);
+    return this.roleManagementService.update(id, updateRoleManagementDto);
   }
 
   // delete a role given the id
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.roleManagementService.remove(+id);
+    return this.roleManagementService.remove(id);
   }
 }

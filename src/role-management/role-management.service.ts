@@ -47,41 +47,32 @@ export class RoleManagementService {
     }
     
 
-    //find all roles
-    // async findAll() {
-    //   try{
-    //     return await this.roleManagementRepository.find()
-    //   } catch(err){
-    //     throw new InternalServerErrorException(
-    //       {
-    //         message: "Failed to Get Roles",
-    //         error: err.message
-    //       }
-    //     )
-    //   }
-    // }
+    async findAll(id: string){
+      const currRoleName = await this.roleManagementRepository.findOne({ where: { id } });
+      const children = await this.findRoleInTree(id)
 
+      return{ [currRoleName.name]: children}
+    }
 
     //find all roles
-    async findRoleInTree(id: number){
+    async findRoleInTree(id: string){
       const childRoles = await this.roleManagementRepository.find({ where: {parentId: id} })
       if (!childRoles) return {}
 
       const children = {} 
       for (const child of childRoles) {
         const grandChildRoles = await this.findRoleInTree(child.id);  // Recursively find children
-        if (grandChildRoles) {
-          children[child.name] = grandChildRoles;  // Use child.name as the key
-        }
+        
+        children[child.name] = grandChildRoles;  // Use child.name as the key
+        
       }
 
-      const currRoleName = (await this.roleManagementRepository.findOne({ where: { id } }));
-      return { [currRoleName.name] : children }
+      return children
     }
 
 
     // find role by id
-    async findOne(id: number) {
+    async findOne(id: string) {
         const role = await this.roleManagementRepository.findOne({ where: { id } });
         if (!role) throw new NotFoundException({message: "Role Not Found"});
 
@@ -90,7 +81,7 @@ export class RoleManagementService {
 
 
     // Get all childrens of a specific position/role
-    async findChildren(id: number){
+    async findChildren(id: string){
         //check if role already exists
         const role = await this.roleManagementRepository.findOne({ where: { id } });
         if(!role) throw new NotFoundException({message: "Role Not Found"});
@@ -105,8 +96,7 @@ export class RoleManagementService {
       
     
     // Updates a role for the given id.
-    async update(id: number, updateRoleManagementDto: UpdateRoleManagementDto) {
-      try{
+    async update(id: string, updateRoleManagementDto: UpdateRoleManagementDto) {
         //check if role already exists
         const role = await this.roleManagementRepository.findOne({
           where: { id }
@@ -128,20 +118,11 @@ export class RoleManagementService {
 
         return await this.roleManagementRepository.update(id, updateRoleManagementDto);
 
-      } catch(err){
-          throw new InternalServerErrorException(
-            {
-              message: "Failed to Update Role",
-              error: err.message
-            }
-          )
-      }
     }
 
 
     // find the role by id and if exist delete the role
-    async remove(id: number) {
-      try{
+    async remove(id: string) {
         //check if role already exists
         const role = await this.roleManagementRepository.findOne({
           where: { id }
@@ -149,19 +130,11 @@ export class RoleManagementService {
         if (!role) throw new NotFoundException({message: "Role Not Found"});
 
         // If the role has children, update their parentId to the parentId of the role being deleted
-        await this.roleManagementRepository.update(
-          {parentId: id},  
-          {parentId: role.parentId}
+        await this.roleManagementRepository.update( { parentId: id },  { parentId: role.parentId }
         )
-
         //delete the row
         return await this.roleManagementRepository.delete(id);
 
-      } catch(err){
-          throw new InternalServerErrorException({
-            message: 'Failed to Remove Role',
-            error: err.message
-          });
-      }
+      
     }
 }

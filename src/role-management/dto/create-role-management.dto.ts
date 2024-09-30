@@ -8,6 +8,6 @@ export class CreateRoleManagementDto {
     description: string
 
     @IsOptional()
-    @IsInt()
-    parentId: number | null
+    @IsString()
+    parentId: string | null
 }

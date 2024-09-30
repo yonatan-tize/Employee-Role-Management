@@ -37,22 +37,22 @@ export class RoleManagementService {
     async findRoleTree(id: string){
 
       // Recursively find the child roles and structure them as a tree.
-      const findRoleTree = async (id: string) => {
+      const buildHierarchy = async (id: string) => {
         const childRoles = await this.roleManagementRepository.find({ where: {parentId: id} })
         if (!childRoles) return {}
 
         const children = {} 
         for (const child of childRoles) {
-          const grandChildRoles = await findRoleTree(child.id);  // Recursively find children
+          const grandChildRoles = await buildHierarchy(child.id);  // Recursively find children
           children[child.name] = grandChildRoles;  // Use child.name as the key 
         }
-        
+
         return children
       };
 
       const role = await this.roleManagementRepository.findOne({ where: { id } });
       if (!role) throw new NotFoundException({message: "Role Not Found"});
-      const descendant = await findRoleTree(id)
+      const descendant = await buildHierarchy(id)
 
       return{ [role.name]: descendant}
     }

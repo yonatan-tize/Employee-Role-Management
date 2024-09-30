@@ -16,14 +16,9 @@ export class RoleManagementController {
 
   // get all roles
   @Get()
-  findAll() {
-    return this.roleManagementService.findRoleInTree;
+  findAll(id: number) {
+    return this.roleManagementService.findRoleInTree(id);
   }
-
-  // @Get()
-  // findRoleInTree(){
-
-  // }
 
 
   // get a single role by id

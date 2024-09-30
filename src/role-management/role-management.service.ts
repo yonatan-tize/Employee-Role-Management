@@ -46,28 +46,27 @@ export class RoleManagementService {
       }
     }
     
-
+    // Return the current role with its nested children as an object.
     async findAll(id: string){
-      const currRoleName = await this.roleManagementRepository.findOne({ where: { id } });
-      const children = await this.findRoleInTree(id)
 
-      return{ [currRoleName.name]: children}
-    }
+      // Recursively find the child roles and structure them as a tree.
+      const findRoleTree = async (id: string) => {
+        const childRoles = await this.roleManagementRepository.find({ where: {parentId: id} })
+        if (!childRoles) return {}
 
-    //find all roles
-    async findRoleInTree(id: string){
-      const childRoles = await this.roleManagementRepository.find({ where: {parentId: id} })
-      if (!childRoles) return {}
-
-      const children = {} 
-      for (const child of childRoles) {
-        const grandChildRoles = await this.findRoleInTree(child.id);  // Recursively find children
-        
-        children[child.name] = grandChildRoles;  // Use child.name as the key
-        
+        const children = {} 
+        for (const child of childRoles) {
+          const grandChildRoles = await findRoleTree(child.id);  // Recursively find children
+          
+          children[child.name] = grandChildRoles;  // Use child.name as the key 
+        }
+        return children
       }
 
-      return children
+      const currRole = await this.roleManagementRepository.findOne({ where: { id } });
+      const descendant = await findRoleTree(id)
+
+      return{ [currRole.name]: descendant}
     }
 
 

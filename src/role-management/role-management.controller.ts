@@ -15,7 +15,7 @@ export class RoleManagementController {
 
   // get all roles
   @Get(':id/children/tree')
-  findRoleTree(@Param('id') id: string) {
+  findAll(@Param('id') id: string) {
     return this.roleManagementService.findAll(id);
   }
 
